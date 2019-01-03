@@ -34,7 +34,7 @@ def GetSeed(password):
     for char in password:
         seed += ord(char)
 
-    seed = seed // len(password)
+    seed = seed // (len(password) * 4)
 
     return seed
 
