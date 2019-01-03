@@ -1,3 +1,8 @@
+# --- MODULE IMPORTS ---
+from decimal import *
+    
+
+
 # --- GLOBAL VARIABLE DECLARATIONS ---
 SET_PREFIX = "21gh4"
 
@@ -9,10 +14,11 @@ SET_PREFIX = "21gh4"
 def Encrypt(plain, seed):
     cypher = ""
 
+    # Encrypts each char of the plain-text
     for char in plain:
         cypher += str((ord(char) + 10) ** seed)
         cypher += ";"
-
+        
     cypher += "!"
     
     return cypher
@@ -21,15 +27,17 @@ def Encrypt(plain, seed):
 # Function takes cypher code string and returns decrypted plain code
 def Decrypt(cypher, seed):
     plain = ""
-    char_code = ""
-    
+    char_code = 0
+
+    # Decrypts each char of the cypher-text
     for char in cypher:
         if char != ";" and char != "!":
-            char_code += char
+            char_code *= 10
+            char_code += int(char)
             
         elif char == ";":
-            plain += chr(int(float(char_code) ** (1 / seed) - 10))
-            char_code = ""
+            plain += chr(int(Decimal(char_code) ** Decimal(1 / seed)) - 9)
+            char_code = 0
     
     return plain
 
@@ -38,10 +46,9 @@ def Decrypt(cypher, seed):
 def GetSeed(password):
     seed = 0
 
+    # Sums the ASCII codes of each password char
     for char in password:
-        seed += ord(char)
-
-    seed = seed // (len(password) * 2)
+        seed += int(ord(char))
 
     return seed
 
@@ -113,8 +120,14 @@ def ReadFromFile():
         password = input("Password: ")
         print("")
 
-        message = Decrypt(cypher, GetSeed(password))
-
+        # Checks to make sure characters have actually been input
+        if password != "":
+            message = Decrypt(cypher, GetSeed(password))
+        else:
+            print("Password entered is incorrect.")
+            continue
+        
+        # Checks to make sure the prefix decoded is correct
         if message[0:5] == SET_PREFIX:
             message = message[5:]
             break
