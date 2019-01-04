@@ -36,7 +36,7 @@ def Decrypt(cypher, seed):
             char_code += int(char)
             
         elif char == ";":
-            plain += chr(int(Decimal(char_code) ** Decimal(1 / seed)) - 9)
+            plain += chr(int(round(Decimal(char_code) ** Decimal(1 / seed))) - 10)
             char_code = 0
     
     return plain
