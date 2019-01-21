@@ -11,12 +11,13 @@ SET_PREFIX = "21gh4"
 # --- FUNCTION DEFINITIONS ---
 
 # Function takes plain code string and returns encrypted cypher code
-def Encrypt(plain, seed):
+def Encrypt(plain, key):
     cypher = ""
 
     # Encrypts each char of the plain-text
-    for char in plain:
-        cypher += str((ord(char) + 10) ** seed)
+    for i in range(len(plain)):
+        char = plain[i]
+        cypher += str((ord(char) + 10) ** ord(key[i % len(key)]))
         cypher += ";"
         
     cypher += "!"
@@ -25,9 +26,10 @@ def Encrypt(plain, seed):
 
 
 # Function takes cypher code string and returns decrypted plain code
-def Decrypt(cypher, seed):
+def Decrypt(cypher, key):
     plain = ""
     char_code = 0
+    i = 0
 
     # Decrypts each char of the cypher-text
     for char in cypher:
@@ -36,21 +38,11 @@ def Decrypt(cypher, seed):
             char_code += int(char)
             
         elif char == ";":
-            plain += chr(int(round(Decimal(char_code) ** Decimal(1 / seed))) - 10)
+            plain += chr(int(round(Decimal(char_code) ** Decimal(1 / ord(key[i % len(key)])))) - 10)
             char_code = 0
+            i += 1
     
     return plain
-
-
-# Function takes a string and turns it into a password seed
-def GetSeed(password):
-    seed = 0
-
-    # Sums the ASCII codes of each password char
-    for char in password:
-        seed += int(ord(char))
-
-    return seed
 
 
 # Function writes to a file
@@ -78,14 +70,12 @@ def WriteToFile():
     password = input("New password: ")
     print("")
 
-    seed = GetSeed(password)
-
     message = input("Text to enter:\n")
     print("")
 
     message = SET_PREFIX + message
 
-    file.write(Encrypt(message, seed))
+    file.write(Encrypt(message, password))
     file.close()
 
     print("Success.\n")
@@ -122,7 +112,7 @@ def ReadFromFile():
 
         # Checks to make sure characters have actually been input
         if password != "":
-            message = Decrypt(cypher, GetSeed(password))
+            message = Decrypt(cypher, password)
         else:
             print("Password entered is incorrect.")
             continue
