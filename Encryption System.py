@@ -17,7 +17,7 @@ def Encrypt(plain, key):
     # Encrypts each char of the plain-text
     for i in range(len(plain)):
         char = plain[i]
-        cypher += str((ord(char) + 10) ** (ord(key[i % len(key)]) * ((20 - i) * 20)))
+        cypher += str(ord(char) ** (ord(key[i % len(key)]) ** (1/(i+1))))
         cypher += ";"
         
     cypher += "!"
@@ -28,18 +28,17 @@ def Encrypt(plain, key):
 # Function takes cypher code string and returns decrypted plain code
 def Decrypt(cypher, key):
     plain = ""
-    char_code = 0
+    char_code = ""
     i = 0
 
     # Decrypts each char of the cypher-text
     for char in cypher:
         if char != ";" and char != "!":
-            char_code *= 10
-            char_code += int(char)
+            char_code += str(char)
             
         elif char == ";":
-            plain += chr(int(round(Decimal(char_code) ** Decimal(1 / (ord(key[i % len(key)]) * ((20 - i) * 20))))) - 10)
-            char_code = 0
+            plain += chr(int(round(Decimal(float(char_code)) ** Decimal(1 / (ord(key[i % len(key)]) ** (1/(i+1)))))))
+            char_code = ""
             i += 1
     
     return plain
